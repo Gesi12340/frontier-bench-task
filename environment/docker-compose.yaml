@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  gateway:
+    build:
+      context: .
+      dockerfile: environment/Dockerfile
+    container_name: gateway
+    ports:
+      - "5000:5000"
+    command: python gateway.py
+    depends_on:
+      - processor
+      - ledger
+    networks:
+      - payment_network
+    environment:
+      - FLASK_ENV=production
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 2s
+      timeout: 5s
+      retries: 3
+
+  processor:
+    build:
+      context: .
+      dockerfile: environment/Dockerfile
+    container_name: processor
+    ports:
+      - "5001:5001"
+    command: python processor.py
+    depends_on:
+      - ledger
+    networks:
+      - payment_network
+    environment:
+      - FLASK_ENV=production
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5001/health"]
+      interval: 2s
+      timeout: 5s
+      retries: 3
+
+  ledger:
+    build:
+      context: .
+      dockerfile: environment/Dockerfile
+    container_name: ledger
+    ports:
+      - "5002:5002"
+    command: python ledger.py
+    volumes:
+      - ledger_data:/app/data
+    networks:
+      - payment_network
+    environment:
+      - FLASK_ENV=production
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5002/health"]
+      interval: 2s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  ledger_data:
+
+networks:
+  payment_network:
+    driver: bridge

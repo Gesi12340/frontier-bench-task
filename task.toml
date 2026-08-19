@@ -1,0 +1,30 @@
+artifacts = ["/app/fix_report.json"]
+
+[task]
+name = "afterquery/payment-data-loss-debug"
+
+[metadata]
+author_name = "Your Name"
+author_email = "your.email@example.com"
+difficulty_explanation = "This task requires deep debugging skills across multiple asynchronous services. The bug is silent—no crashes or error logs—making it hard to detect. The agent must reproduce a timing-dependent race condition, instrument the system to expose hidden failures, trace transaction flow across service boundaries, and understand database transaction isolation. Expert backend engineers typically spend 2-4 hours on production incidents like this. Current frontier models fail because they jump to shallow hypotheses (add logging, increase timeouts) without understanding async/await semantics and transaction state machines."
+solution_explanation = "The root cause is a silent exception in the ledger service's background commit worker. When two transactions arrive within 50ms, the second transaction's rollback is queued but never executed because the worker thread crashes on an index error in the state machine (off-by-one bug). The first transaction commits successfully, but the second never reaches the database. The fix requires: (1) adding proper exception handling and logging in the worker thread, (2) fixing the off-by-one index bug in the state machine, and (3) verifying with concurrent load tests. The key insight is that silent failures often hide in background workers, not in the main request path."
+verification_explanation = "The verifier checks four things: (1) the fix_report.json identifies the correct root cause (silent_exception + state_machine_bug), (2) the fixed codebase no longer loses transactions under concurrent load (simulates 100 concurrent deposits within 50ms windows), (3) the ledger records all transactions end-to-end, and (4) the explanation accurately describes the bug. We run the fixed system, trigger the stress test, and verify transaction counts match deposit counts. Any mismatch or missing transactions fails verification."
+category = "Software"
+subcategory = "Systems"
+tags = ["debugging", "async", "race-conditions", "databases", "microservices"]
+expert_time_estimate_hours = 4
+relevant_experience = "I have 8+ years of backend systems experience, including 4 years debugging production microservices at scale. I've spent hundreds of hours chasing timing-dependent bugs in asynchronous systems, database transaction issues, and multi-service race conditions. This task reflects real problems I've debugged in payment systems and event-driven architectures."
+
+[verifier]
+timeout_sec = 180.0
+environment_mode = "separate"
+
+[agent]
+timeout_sec = 900.0
+
+[environment]
+build_timeout_sec = 600.0
+cpus = 2
+memory_mb = 4096
+storage_mb = 20480
+gpus = 0
