@@ -1,7 +1,7 @@
 artifacts = ["/app/fix_report.json"]
 
 [task]
-name = "afterquery/payment-data-loss-debug"
+name = "afterquery/silent-data-loss"
 
 [metadata]
 author_name = "Your Name"
@@ -20,7 +20,7 @@ timeout_sec = 180.0
 environment_mode = "separate"
 
 [agent]
-timeout_sec = 900.0
+timeout_sec = 3600.0
 
 [environment]
 build_timeout_sec = 600.0
