@@ -1,0 +1,12 @@
+Task: silent-data-loss
+Status: All checks passed
+Submission: Ready for Frontier Bench
+
+Verification:
+✅ Task slug: afterquery/silent-data-loss (3 words)
+✅ Agent timeout: 3600s (1 hour minimum)
+✅ No compose volumes (database at build time)
+✅ Verifier in separate container
+✅ All required files present
+✅ Reference solution included
+✅ Anti-cheat hardening included
